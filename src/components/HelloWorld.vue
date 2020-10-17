@@ -633,7 +633,6 @@ export default {
         stream
       );
       this.analyser = this.audioContext.createAnalyser();
-      this.analyser.fftSize = 32
       this.source.connect(this.analyser);
       this.analyser.connect(this.audioContext.destination);
       for (let i = 0; i < this.analyser.frequencyBinCount; i++) {
