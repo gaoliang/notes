@@ -2,7 +2,7 @@
   <div>
     HelloWorld
     <br />
-    <button @click="play">开始</button>
+    <button @click="play">展开录音波形图</button>
     <br />
     <audio
       src="@/assets/test.mp3"
@@ -620,18 +620,20 @@ export default {
     };
   },
   mounted() {
-    this.initAudoContext();
+    // this.initAudoContext();
+      navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+      .then(this.handleSuccess)
   },
   methods: {
-    initAudoContext() {
+    handleSuccess(stream) {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       this.audioContext = new AudioContext();
       console.log(this.$refs.audio);
-      this.source = this.audioContext.createMediaElementSource(
-        this.$refs.audio
+      this.source = this.audioContext.createMediaStreamSource(
+        stream
       );
       this.analyser = this.audioContext.createAnalyser();
-      this.analyser.fftSize = 4096
+      this.analyser.fftSize = 32
       this.source.connect(this.analyser);
       this.analyser.connect(this.audioContext.destination);
       for (let i = 0; i < this.analyser.frequencyBinCount; i++) {
@@ -640,6 +642,23 @@ export default {
         );
       }
     },
+    // initAudoContext() {
+    //   const AudioContext = window.AudioContext || window.webkitAudioContext;
+    //   this.audioContext = new AudioContext();
+    //   console.log(this.$refs.audio);
+    //   this.source = this.audioContext.createMediaElementSource(
+    //     this.$refs.audio
+    //   );
+    //   this.analyser = this.audioContext.createAnalyser();
+    //   this.analyser.fftSize = 4096
+    //   this.source.connect(this.analyser);
+    //   this.analyser.connect(this.audioContext.destination);
+    //   for (let i = 0; i < this.analyser.frequencyBinCount; i++) {
+    //     this.echartOptions.xAxis.data.push(
+    //       i * (44410 / 2 / this.analyser.frequencyBinCount)
+    //     );
+    //   }
+    // },
     draw() {
       const voiceHeight = new Uint8Array(this.analyser.frequencyBinCount);
       this.analyser.getByteFrequencyData(voiceHeight);
@@ -648,13 +667,13 @@ export default {
           (voiceHeight.indexOf(Math.max(...voiceHeight)) * 44410) /
           2 /
           this.analyser.frequencyBinCount
-        ).toFixed(2)
+        )
       );
       this.echartOptions.series[0].data = Array.from(voiceHeight);
     },
     play() {
       this.audioContext.resume();
-      this.$refs.audio.play();
+      // this.$refs.audio.play();
       setInterval(this.draw, 100);
     },
   },
