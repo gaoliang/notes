@@ -634,7 +634,7 @@ export default {
       );
       this.analyser = this.audioContext.createAnalyser();
       this.source.connect(this.analyser);
-      this.analyser.connect(this.audioContext.destination);
+      // this.analyser.connect(this.audioContext.destination);
       for (let i = 0; i < this.analyser.frequencyBinCount; i++) {
         this.echartOptions.xAxis.data.push(
           i * (44410 / 2 / this.analyser.frequencyBinCount)
